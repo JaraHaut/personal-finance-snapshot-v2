@@ -395,14 +395,14 @@ dedicated `FiltersContext` so all consumers see the same selected month.
 **Goal:** Running Vite app with types, storage layer, and CSV parser.
 
 **Tasks:**
-- [ ] `pnpm create vite finance-snapshot --template react-ts`
-- [ ] Install deps: `pnpm add recharts papaparse jspdf html2canvas` + `@types/papaparse`
-- [ ] Define `src/types/index.ts` with all types above
-- [ ] Implement `src/lib/storage.ts`:
+- [x] `pnpm create vite finance-snapshot --template react-ts`
+- [x] Install deps: `pnpm add recharts papaparse jspdf html2canvas` + `@types/papaparse`
+- [x] Define `src/types/index.ts` with all types above
+- [x] Implement `src/lib/storage.ts`:
   - `loadAppData(): AppStorage` — reads and parses from localStorage
   - `saveAppData(data: AppStorage): void` — writes; throws `StorageFullError` if quota exceeded (catch `DOMException: QuotaExceededError`)
   - Guard: warn in console if approaching 80% of estimated 5MB
-- [ ] Implement `src/lib/csv-parser.ts`:
+- [x] Implement `src/lib/csv-parser.ts`:
   - Use Papa Parse with `header: true, skipEmptyLines: true, dynamicTyping: false`
   - Enable `delimitersToGuess` for auto-delimiter detection
   - Normalize dates: try `MM/DD/YYYY`, `YYYY-MM-DD`, `M/D/YYYY` — flag unrecognized formats as `invalid_date_format`
@@ -413,8 +413,8 @@ dedicated `FiltersContext` so all consumers see the same selected month.
   - Return: `{ valid: ParsedRow[], skipped: SkippedRow[], duplicates: DuplicateRow[] }`
 
 **Acceptance criteria:**
-- [ ] Parser handles all data quality issues in `assets/sample-transactions.csv`
-- [ ] All 6 bad rows (row 13 empty desc, row 45 text amount, row 54 missing date, rows 14-15 and 31-32 duplicates) are detected
+- [x] Parser handles all data quality issues in `assets/sample-transactions.csv`
+- [x] All 6 bad rows (row 13 empty desc, row 45 text amount, row 54 missing date, rows 14-15 and 31-32 duplicates) are detected
 
 ### Research Insights — Phase 1
 
@@ -487,30 +487,30 @@ function sanitizeDescription(raw: string): string {
 **Goal:** Full import flow from file drop to localStorage.
 
 **Tasks:**
-- [ ] Implement `src/constants/categories.ts` with DEFAULT_RULES (above)
-- [ ] Implement `src/lib/categorizer.ts`:
+- [x] Implement `src/constants/categories.ts` with DEFAULT_RULES (above)
+- [x] Implement `src/lib/categorizer.ts`:
   - `categorize(description: string): { category: Category; type: TransactionType }`
   - Case-insensitive substring match; first rule wins; fallback: `{ category: 'Other', type: 'expense' }`
   - Amount sign is **ignored** — type comes from rule only
-- [ ] Implement `src/context/AppContext.tsx`:
+- [x] Implement `src/context/AppContext.tsx`:
   - State: `{ imports: ImportedFile[], transactions: Transaction[] }`
   - Actions: `ADD_IMPORT`, `DELETE_IMPORT`, `OVERRIDE_CATEGORY`
   - Init: `loadAppData()` on mount; persist to localStorage on every dispatch
-- [ ] Build `ImportZone.tsx`: drag-drop + file picker; calls Papa Parse on drop/select
-- [ ] Build `LabelModal.tsx`: shown after parse; user types label; validate uniqueness (warn if label already exists, allow suffix)
-- [ ] Build `ImportSummaryModal.tsx`:
+- [x] Build `ImportZone.tsx`: drag-drop + file picker; calls Papa Parse on drop/select
+- [x] Build `LabelModal.tsx`: shown after parse; user types label; validate uniqueness (warn if label already exists, allow suffix)
+- [x] Build `ImportSummaryModal.tsx`:
   - Shows: X transactions imported, Y skipped (with reason list), Z duplicates found, W transfers detected
   - **Transfers section:** For each row with `category: 'Transfers'`, show description + amount and a 2-button inline selector: `Income` / `Expense`. No default pre-selection — user must actively choose. "Save Import" button disabled until all transfer rows have a type assigned.
   - Transfers saved with `category: 'Transfers'` and the user's chosen `type: 'income' | 'expense'`
   - For each duplicate: show existing vs. incoming row; buttons "Keep existing" / "Add anyway"
   - Duplicate resolution is per-row (not bulk)
-- [ ] Build `ImportsList.tsx`: list imports with label, file name, date, transaction count; delete button with confirmation dialog (warns that transactions will be lost)
-- [ ] `DELETE_IMPORT` action: remove import + all its transactions from state
+- [x] Build `ImportsList.tsx`: list imports with label, file name, date, transaction count; delete button with confirmation dialog (warns that transactions will be lost)
+- [x] `DELETE_IMPORT` action: remove import + all its transactions from state
 
 **Acceptance criteria:**
-- [ ] Full import flow works end-to-end with sample CSV
-- [ ] Label modal blocks submission if label is blank
-- [ ] Deleting an import removes its transactions from all views
+- [x] Full import flow works end-to-end with sample CSV
+- [x] Label modal blocks submission if label is blank
+- [x] Deleting an import removes its transactions from all views
 
 ### Research Insights — Phase 2
 
@@ -601,25 +601,25 @@ import before seeing what it contains. Restructure the import modal flow:
 **Goal:** Filterable table with inline category editing.
 
 **Tasks:**
-- [ ] Build `TableFilters.tsx`:
+- [x] Build `TableFilters.tsx`:
   - Month picker: derived from all transaction dates; format `YYYY-MM` → display "January 2026"
   - Category multi-select dropdown
   - Type toggle: All / Income / Expenses (Transfers visible in both since they have income/expense type; filter by category 'Transfers' separately)
-- [ ] Build `TransactionTable.tsx`:
+- [x] Build `TransactionTable.tsx`:
   - Columns: Date | Description | Amount | Type | Category | Source (import label)
   - Default sort: date descending
   - Applies active filters from `useFilters` hook
   - Empty state: "No transactions match your filters"
-- [ ] Build `TransactionRow.tsx`:
+- [x] Build `TransactionRow.tsx`:
   - Category cell: shows category badge; click opens inline dropdown of all 10 categories
   - On change: dispatches `OVERRIDE_CATEGORY`; sets `isManualCategory: true`; persists immediately
   - Visual indicator (e.g., pencil icon) on manually overridden rows
-- [ ] `useFilters.ts` hook: manages selectedMonth (null = all), selectedCategories, selectedType
+- [x] `useFilters.ts` hook: manages selectedMonth (null = all), selectedCategories, selectedType
 
 **Acceptance criteria:**
-- [ ] Filtering by month shows only transactions from that month (across all imports)
-- [ ] Manual category override persists after page reload
-- [ ] Table is usable with 500+ rows (no visible lag)
+- [x] Filtering by month shows only transactions from that month (across all imports)
+- [x] Manual category override persists after page reload
+- [x] Table is usable with 500+ rows (no visible lag)
 
 ### Research Insights — Phase 3
 
@@ -690,30 +690,30 @@ Disable export during import; disable import during export; suppress chart anima
 **Goal:** Three charts on the Dashboard page.
 
 **Tasks:**
-- [ ] Build `MonthlyTotalsChart.tsx`:
+- [x] Build `MonthlyTotalsChart.tsx`:
   - Recharts `BarChart` with two grouped bars per month: Income (green) and Expenses (red)
   - X axis: months sorted chronologically; Y axis: dollar amounts
   - Tooltip shows exact amounts
   - Data derived from all transactions regardless of active month filter (it IS the month explorer)
-- [ ] Build `CategoryPieChart.tsx`:
+- [x] Build `CategoryPieChart.tsx`:
   - Recharts `PieChart` (donut style) for expense transactions in selected month (or all time if no month selected)
   - Excludes `Income` and `Transfers` categories (transfers don't represent pure spending — user may toggle Transfers visibility)
   - Legend with category names + dollar amounts
   - Empty state: "No expense data for this period"
-- [ ] Build `CategoryTrendChart.tsx`:
+- [x] Build `CategoryTrendChart.tsx`:
   - Recharts `LineChart` with one line per category (excludes 'Income' and 'Transfers' categories by default) over time
   - X axis: months; Y axis: total spend; one line per active category
   - Togglable categories via legend click
   - Shows all months, not filtered
-- [ ] Build `Dashboard.tsx`:
+- [x] Build `Dashboard.tsx`:
   - Summary cards: Total Income | Total Expenses | Net (this month or all time)
   - Arrange: MonthlyTotalsChart (full width), CategoryPieChart + summary cards (row), CategoryTrendChart (full width)
   - Month selector at top of page (shared with table filters via context)
 
 **Acceptance criteria:**
-- [ ] Charts update immediately when month filter changes
-- [ ] Charts handle months with zero data (show $0 bar, skip line points)
-- [ ] Charts are readable without horizontal scrolling on 1280px viewport
+- [x] Charts update immediately when month filter changes
+- [x] Charts handle months with zero data (show $0 bar, skip line points)
+- [x] Charts are readable without horizontal scrolling on 1280px viewport
 
 ### Research Insights — Phase 4
 
@@ -779,23 +779,23 @@ deselects all legend items, render: "Select a category above to see its trend."
 **Goal:** PDF export and final UI polish.
 
 **Tasks:**
-- [ ] Implement `src/lib/pdf-export.ts`:
+- [x] Implement `src/lib/pdf-export.ts`:
   - `exportMonthlySnapshot(month: string | null): Promise<void>`
   - Target a `<div id="pdf-snapshot">` wrapper that contains: month title, summary cards, CategoryPieChart, top-10 expense table
   - Use `html2canvas` to render to canvas; embed in jsPDF A4 page
   - Filename: `finance-snapshot-${month ?? 'all'}.pdf`
   - Handle empty state: include "No transactions for this period" text
-- [ ] Build `ExportButton.tsx`: "Export PDF" button; shows loading spinner during export; disabled if no transactions
-- [ ] Handle `StorageFullError` in ImportZone: show user-facing error toast "Import failed: browser storage is full. Delete an older import to continue."
-- [ ] Add empty states throughout: no imports yet → welcome screen with upload CTA
-- [ ] Error boundaries for chart failures
-- [ ] Final responsive layout check (desktop 1280px, tablet 768px)
+- [x] Build `ExportButton.tsx`: "Export PDF" button; shows loading spinner during export; disabled if no transactions
+- [x] Handle `StorageFullError` in ImportZone: show user-facing error toast "Import failed: browser storage is full. Delete an older import to continue."
+- [x] Add empty states throughout: no imports yet → welcome screen with upload CTA
+- [x] Error boundaries for chart failures
+- [x] Final responsive layout check (desktop 1280px, tablet 768px)
 
 **Acceptance criteria:**
-- [ ] PDF renders cleanly with correct month label and data
-- [ ] PDF filename includes the month slug
-- [ ] Export button is disabled when no transactions exist
-- [ ] App shows a clear CTA when no data has been imported
+- [x] PDF renders cleanly with correct month label and data
+- [x] PDF filename includes the month slug
+- [x] Export button is disabled when no transactions exist
+- [x] App shows a clear CTA when no data has been imported
 
 ### Research Insights — Phase 5
 
@@ -896,37 +896,37 @@ These gaps were identified by SpecFlow analysis and are now resolved:
 
 ### Functional
 
-- [ ] Upload a CSV via drag-drop or file picker
-- [ ] CSV is parsed; bad rows skipped with specific reasons shown in summary modal
-- [ ] Duplicate rows (same date+description+amount) flagged per-row; user decides
-- [ ] Each import stored with user-assigned label; multiple imports coexist
-- [ ] All transactions auto-categorized using DEFAULT_RULES on import
-- [ ] Income vs. expense classification is description-rule-based (not amount sign)
-- [ ] Transfers (credit card autopay, Venmo, Zelle, Cash App) detected on import (category = 'Transfers') and shown in ImportSummaryModal; user must choose Income or Expense before saving
-- [ ] 'Transfers' category excluded from spending charts (pie + trend) by default
-- [ ] User can override a transaction's category inline (including changing from/to 'Transfers'); change persists after reload
-- [ ] Transaction table filterable by month, category (including 'Transfers'), and type
-- [ ] Table sorted by date descending by default
-- [ ] Monthly totals bar chart shows income vs. expenses per month across all data
-- [ ] Category donut chart reflects selected month filter (or all time)
-- [ ] Category trend line chart shows month-over-month spend per category
-- [ ] "Export PDF" produces a named PDF of the selected month's snapshot
-- [ ] Deleting an import removes it and all its transactions from all views
-- [ ] StorageFullError surfaced as user-facing toast; import aborted
+- [x] Upload a CSV via drag-drop or file picker
+- [x] CSV is parsed; bad rows skipped with specific reasons shown in summary modal
+- [x] Duplicate rows (same date+description+amount) flagged per-row; user decides
+- [x] Each import stored with user-assigned label; multiple imports coexist
+- [x] All transactions auto-categorized using DEFAULT_RULES on import
+- [x] Income vs. expense classification is description-rule-based (not amount sign)
+- [x] Transfers (credit card autopay, Venmo, Zelle, Cash App) detected on import (category = 'Transfers') and shown in ImportSummaryModal; user must choose Income or Expense before saving
+- [x] 'Transfers' category excluded from spending charts (pie + trend) by default
+- [x] User can override a transaction's category inline (including changing from/to 'Transfers'); change persists after reload
+- [x] Transaction table filterable by month, category (including 'Transfers'), and type
+- [x] Table sorted by date descending by default
+- [x] Monthly totals bar chart shows income vs. expenses per month across all data
+- [x] Category donut chart reflects selected month filter (or all time)
+- [x] Category trend line chart shows month-over-month spend per category
+- [x] "Export PDF" produces a named PDF of the selected month's snapshot
+- [x] Deleting an import removes it and all its transactions from all views
+- [x] StorageFullError surfaced as user-facing toast; import aborted
 
 ### Non-Functional
 
-- [ ] All data in `localStorage`; zero network requests for data operations
-- [ ] Works in Chrome, Firefox, Safari (latest)
-- [ ] Usable on 768px+ viewport width
-- [ ] Table handles 500+ rows without visible lag (TanStack Virtual)
-- [ ] TypeScript strict mode; no `any` types in business logic
-- [ ] localStorage data validated with Zod on every load (no silent corruption)
-- [ ] `schemaVersion` present in stored data; migration chain runs on load
-- [ ] CSV files > 10MB rejected before FileReader with user-facing message
-- [ ] Import state machine prevents concurrent import operations
-- [ ] PDF export disabled while import is in progress (and vice versa)
-- [ ] A JSON data export/recovery button exists in the sidebar
+- [x] All data in `localStorage`; zero network requests for data operations
+- [x] Works in Chrome, Firefox, Safari (latest)
+- [x] Usable on 768px+ viewport width
+- [x] Table handles 500+ rows without visible lag (TanStack Virtual)
+- [x] TypeScript strict mode; no `any` types in business logic
+- [x] localStorage data validated with Zod on every load (no silent corruption)
+- [x] `schemaVersion` present in stored data; migration chain runs on load
+- [x] CSV files > 10MB rejected before FileReader with user-facing message
+- [x] Import state machine prevents concurrent import operations
+- [x] PDF export disabled while import is in progress (and vice versa)
+- [x] A JSON data export/recovery button exists in the sidebar
 
 ---
 
