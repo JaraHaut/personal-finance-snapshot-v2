@@ -11,7 +11,7 @@ interface Props {
     label: string;
     validRows: ParsedRow[];
     resolvedTransfers: TransferRow[];
-    acceptedDuplicates: ParsedRow[];
+    acceptedDuplicates: DuplicateRow[];
     skippedCount: number;
   }) => void;
   onCancel: () => void;
@@ -79,8 +79,9 @@ export function ImportSummaryModal({ result, fileName, onConfirm, onCancel }: Pr
 
   function handleConfirm() {
     const acceptedDuplicates = result.duplicates
-      .filter((_, i) => dupDecisions[i] === 'keep')
-      .map((d) => d.incoming);
+      .filter((_, i) => dupDecisions[i] === 'keep');
+    // Note: no .map() — we pass DuplicateRow[] directly so finalizeImport
+    // can preserve isManualCategory from the existing transaction.
 
     onConfirm({
       label: label.trim(),

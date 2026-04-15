@@ -108,11 +108,6 @@ button:active:not(:disabled) { transform: translateY(1px); }
   letter-spacing: -0.01em;
 }
 
-/* Legacy type badges kept for any remaining uses */
-.badge-income   { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
-.badge-expense  { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-.badge-transfer { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
-
 /* ── Toast ────────────────────────────────────────────────────────────────── */
 .toast-container {
   position: fixed;

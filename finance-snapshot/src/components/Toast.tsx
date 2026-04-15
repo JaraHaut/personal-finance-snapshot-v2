@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { registerToastCallback, type ToastType } from '../context/AppContext';
+import { registerToastCallback, deregisterToastCallback, type ToastType } from '../context/AppContext';
 
 interface ToastItem {
   id: number;
@@ -21,6 +21,7 @@ export function ToastContainer() {
         setToasts((prev) => prev.filter((t) => t.id !== id));
       }, 4000);
     });
+    return () => deregisterToastCallback();
   }, []);
 
   return (

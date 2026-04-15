@@ -22,8 +22,10 @@ export function ImportZone({ onPipelineResult }: ImportZoneProps) {
 
   const handleFile = useCallback(
     async (file: File) => {
-      if (!file.name.endsWith('.csv') && file.type !== 'text/csv') {
-        showToast('Please select a CSV file.', 'error');
+      const validExt = file.name.toLowerCase().endsWith('.csv');
+      const validMime = !file.type || file.type === 'text/csv' || file.type === 'text/plain';
+      if (!validExt || !validMime) {
+        showToast('Please select a CSV file (.csv).', 'error');
         return;
       }
 

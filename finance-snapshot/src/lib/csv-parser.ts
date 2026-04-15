@@ -69,7 +69,7 @@ export function parseAmount(raw: string): number | null {
   if (!stripped) return null;
   const n = parseFloat(stripped);
   if (isNaN(n)) return null;
-  return Math.abs(n); // always positive
+  return Math.round(Math.abs(n) * 100) / 100;
 }
 
 /**
@@ -77,7 +77,7 @@ export function parseAmount(raw: string): number | null {
  * Protects against downstream formula injection if data is exported to spreadsheets.
  */
 export function sanitizeDescription(raw: string): string {
-  return raw.replace(/^[=+\-@\t\r]+/, '').trim();
+  return raw.replace(/^[=+\-@|;\t\r]+/, '').trim();
 }
 
 /**
@@ -152,7 +152,7 @@ export function parseCSV(
             (t) =>
               t.date === row.date &&
               t.description === row.description &&
-              t.amount === row.amount
+              Math.round(t.amount * 100) === Math.round(row.amount * 100)
           );
           if (existing) {
             duplicates.push({ existing, incoming: row, rawLine: `${row.date},${row.description},${row.amount}` });

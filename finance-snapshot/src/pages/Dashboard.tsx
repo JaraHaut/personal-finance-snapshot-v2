@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { useAppState, showToast, useAppDispatch } from '../context/AppContext';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 import { ImportZone } from '../components/import/ImportZone';
 import { ImportSummaryModal } from '../components/import/ImportSummaryModal';
 import { MonthlyTotalsChart } from '../components/charts/MonthlyTotalsChart';
@@ -115,12 +116,14 @@ export function Dashboard() {
       )}
 
       {/* Off-screen PDF snapshot — always mounted so Recharts has layout dimensions */}
-      <div
-        aria-hidden
-        style={{ position: 'absolute', left: -9999, top: 0, pointerEvents: 'none', zIndex: -1 }}
-      >
-        <PdfSnapshot ref={pdfRef} transactions={transactions} month={filters.selectedMonth} />
-      </div>
+      <ErrorBoundary fallback={null}>
+        <div
+          aria-hidden
+          style={{ position: 'absolute', left: -9999, top: 0, pointerEvents: 'none', zIndex: -1 }}
+        >
+          <PdfSnapshot ref={pdfRef} transactions={transactions} month={filters.selectedMonth} />
+        </div>
+      </ErrorBoundary>
     </div>
   );
 }

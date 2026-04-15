@@ -3,7 +3,8 @@ import {
   useContext,
   useReducer,
   useEffect,
-  useCallback,
+  useMemo,
+  useRef,
   type ReactNode,
   type Dispatch,
 } from 'react';
@@ -112,6 +113,9 @@ const DispatchCtx = createContext<Dispatch<AppAction> | null>(null);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, undefined, makeInitialState);
 
+  // Track previous imports reference to detect ADD/DELETE vs OVERRIDE_CATEGORY.
+  const prevImportsRef = useRef(state.imports);
+
   // Persist to localStorage on every state change that affects stored data.
   // Category overrides are debounced (300ms); import/delete write immediately.
   useEffect(() => {
@@ -121,14 +125,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
       transactions: state.transactions,
     };
 
-    // Heuristic: if import phase changed to idle (just after ADD/DELETE),
-    // write immediately. Otherwise debounce (handles category overrides).
-    if (state.importPhase === 'idle') {
+    const importsChanged = state.imports !== prevImportsRef.current;
+    prevImportsRef.current = state.imports;
+
+    if (importsChanged) {
       saveImmediately(storage);
     } else {
       scheduleSave(storage);
     }
-  }, [state.schemaVersion, state.imports, state.transactions, state.importPhase]);
+  }, [state.schemaVersion, state.imports, state.transactions]);
 
   return (
     <DispatchCtx.Provider value={dispatch}>
@@ -153,37 +158,41 @@ export function useAppDispatch(): Dispatch<AppAction> {
   return ctx;
 }
 
-/** Derived selector: transaction count for a specific import. */
-export function useImportTransactionCount(importId: string): number {
-  const { transactions } = useAppState();
-  return transactions.filter((t) => t.importId === importId).length;
-}
-
 /** Derived selector: all unique YYYY-MM months across all transactions, sorted. */
 export function useAvailableMonths(): string[] {
   const { transactions } = useAppState();
-  const months = new Set(transactions.map((t) => t.date.slice(0, 7)));
-  return Array.from(months).sort();
+  return useMemo(() => {
+    const months = new Set(transactions.map((t) => t.date.slice(0, 7)));
+    return Array.from(months).sort();
+  }, [transactions]);
 }
 
 /** Derived selector: filtered transactions based on current filter state. */
 export function useFilteredTransactions(): Transaction[] {
   const { transactions, filters } = useAppState();
-  return transactions.filter((t) => {
-    if (filters.selectedMonth && !t.date.startsWith(filters.selectedMonth)) return false;
-    if (filters.selectedCategories.length > 0 && !filters.selectedCategories.includes(t.category)) return false;
-    if (filters.selectedType !== 'all' && t.type !== filters.selectedType) return false;
-    return true;
-  });
+  return useMemo(
+    () =>
+      transactions.filter((t) => {
+        if (filters.selectedMonth && !t.date.startsWith(filters.selectedMonth)) return false;
+        if (filters.selectedCategories.length > 0 && !filters.selectedCategories.includes(t.category)) return false;
+        if (filters.selectedType !== 'all' && t.type !== filters.selectedType) return false;
+        return true;
+      }),
+    [transactions, filters]
+  );
 }
 
 /** Derived selector: all imports with their real transaction count. */
 export function useImportsWithCount(): Array<ImportedFile & { transactionCount: number }> {
   const { imports, transactions } = useAppState();
-  return imports.map((imp) => ({
-    ...imp,
-    transactionCount: transactions.filter((t) => t.importId === imp.id).length,
-  }));
+  return useMemo(
+    () =>
+      imports.map((imp) => ({
+        ...imp,
+        transactionCount: transactions.filter((t) => t.importId === imp.id).length,
+      })),
+    [imports, transactions]
+  );
 }
 
 // Toast helper (simple event emitter pattern — no external library needed)
@@ -195,6 +204,10 @@ export function registerToastCallback(cb: (message: string, type: ToastType) => 
   _toastCallback = cb;
 }
 
+export function deregisterToastCallback() {
+  _toastCallback = null;
+}
+
 export function showToast(message: string, type: ToastType = 'info') {
   if (_toastCallback) {
     _toastCallback(message, type);
@@ -203,10 +216,3 @@ export function showToast(message: string, type: ToastType = 'info') {
   }
 }
 
-/** Convenience hook to get a stable dispatch function. */
-export function useDispatchCallback<T>(
-  actionCreator: (arg: T) => AppAction
-): (arg: T) => void {
-  const dispatch = useAppDispatch();
-  return useCallback((arg: T) => dispatch(actionCreator(arg)), [dispatch, actionCreator]);
-}

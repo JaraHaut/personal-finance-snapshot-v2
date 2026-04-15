@@ -3,19 +3,11 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
-import { useAppState } from '../../context/AppContext';
-
-const TICK = { fontSize: 13, fill: '#64748b' };
-const GRID = { strokeDasharray: '4 4', stroke: '#e2e8f0' };
-const TOOLTIP_STYLE = {
-  fontSize: 13,
-  borderRadius: 8,
-  border: '1px solid #dde3ee',
-  boxShadow: '0 4px 16px rgba(15,23,42,.10)',
-};
+import { useFilteredTransactions } from '../../context/AppContext';
+import { CHART_TICK, CHART_GRID, CHART_TOOLTIP_STYLE } from '../../constants/chartTheme';
 
 export function MonthlyTotalsChart() {
-  const { transactions } = useAppState();
+  const transactions = useFilteredTransactions();
 
   const data = useMemo(() => {
     const map = new Map<string, { income: number; expense: number }>();
@@ -42,11 +34,11 @@ export function MonthlyTotalsChart() {
   return (
     <ResponsiveContainer width="100%" height={240}>
       <BarChart data={data} margin={{ top: 8, right: 8, left: 4, bottom: 4 }} barCategoryGap="30%">
-        <CartesianGrid {...GRID} />
-        <XAxis dataKey="month" tick={TICK} tickLine={false} axisLine={false} dy={6} />
-        <YAxis tick={TICK} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} width={60} />
+        <CartesianGrid {...CHART_GRID} />
+        <XAxis dataKey="month" tick={CHART_TICK} tickLine={false} axisLine={false} dy={6} />
+        <YAxis tick={CHART_TICK} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} width={60} />
         <Tooltip
-          contentStyle={TOOLTIP_STYLE}
+          contentStyle={CHART_TOOLTIP_STYLE}
           formatter={(value) => [`$${Number(value).toFixed(2)}`, undefined]}
           cursor={{ fill: 'rgba(91,94,244,.06)' }}
         />

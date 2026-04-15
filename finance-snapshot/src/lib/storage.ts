@@ -79,16 +79,31 @@ export function loadAppData(): AppStorage {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaultAppStorage();
 
-    const parsed = AppStorageSchema.parse(JSON.parse(raw));
-    const migrated = migrate(parsed);
+    const rawParsed = JSON.parse(raw);
+
+    // Loose check: must be an object before we can migrate
+    if (typeof rawParsed !== 'object' || rawParsed === null || Array.isArray(rawParsed)) {
+      return defaultAppStorage();
+    }
+
+    // Run migration BEFORE strict validation — future schema versions may
+    // change field shapes that would otherwise fail the Zod parse.
+    const migrated = migrate(rawParsed);
+
+    // Strict validation after migration
+    const result = AppStorageSchema.safeParse(migrated);
+    if (!result.success) {
+      console.warn('[finance-snapshot] localStorage data invalid after migration. Starting fresh.', result.error);
+      return defaultAppStorage();
+    }
+
+    const validated = result.data;
 
     // Orphan detection: remove transactions whose importId has no matching import
-    const importIds = new Set(migrated.imports.map((i) => i.id));
-    migrated.transactions = migrated.transactions.filter((t) =>
-      importIds.has(t.importId)
-    );
+    const importIds = new Set(validated.imports.map((i) => i.id));
+    const transactions = validated.transactions.filter((t) => importIds.has(t.importId));
 
-    return migrated;
+    return { ...validated, transactions };
   } catch (err) {
     console.warn('[finance-snapshot] localStorage data corrupted or incompatible. Starting fresh.', err);
     return defaultAppStorage();

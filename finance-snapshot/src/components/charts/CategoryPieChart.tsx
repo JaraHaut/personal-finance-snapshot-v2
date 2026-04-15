@@ -2,14 +2,8 @@ import { useMemo } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useFilteredTransactions } from '../../context/AppContext';
 import { CATEGORY_COLORS } from '../../constants/categories';
+import { CHART_TOOLTIP_STYLE } from '../../constants/chartTheme';
 import type { Category } from '../../types';
-
-const TOOLTIP_STYLE = {
-  fontSize: 13,
-  borderRadius: 8,
-  border: '1px solid #dde3ee',
-  boxShadow: '0 4px 16px rgba(15,23,42,.10)',
-};
 
 export function CategoryPieChart() {
   const transactions = useFilteredTransactions();
@@ -54,7 +48,7 @@ export function CategoryPieChart() {
           ))}
         </Pie>
         <Tooltip
-          contentStyle={TOOLTIP_STYLE}
+          contentStyle={CHART_TOOLTIP_STYLE}
           formatter={(value) => [`$${Number(value).toFixed(2)}`, undefined]}
         />
         <Legend

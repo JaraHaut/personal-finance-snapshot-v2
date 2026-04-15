@@ -52,7 +52,7 @@ export interface FinalizeImportParams {
   label: string;
   validRows: ParsedRow[];
   resolvedTransfers: TransferRow[];   // only those with chosenType !== null
-  acceptedDuplicates: ParsedRow[];    // duplicates user chose to keep
+  acceptedDuplicates: DuplicateRow[]; // duplicates user chose to keep
   skippedCount: number;
 }
 
@@ -65,12 +65,17 @@ export function finalizeImport(params: FinalizeImportParams): { file: ImportedFi
   const importId: ImportId = asImportId(crypto.randomUUID());
   const importedAt = new Date().toISOString();
 
-  const allRows: ParsedRow[] = [
-    ...params.validRows,
+  const allRows: Array<ParsedRow & { _existingManualCategory?: { category: ParsedRow['category']; type: ParsedRow['type'] } }> = [
+    ...params.validRows.map(r => ({ ...r })),
     ...params.resolvedTransfers
       .filter((t) => t.chosenType !== null)
       .map((t) => ({ ...t.row, type: t.chosenType! })),
-    ...params.acceptedDuplicates,
+    ...params.acceptedDuplicates.map((dup) => ({
+      ...dup.incoming,
+      ...(dup.existing.isManualCategory
+        ? { category: dup.existing.category, type: dup.existing.type }
+        : {}),
+    })),
   ];
 
   const transactions: Transaction[] = allRows.map((row) => ({
