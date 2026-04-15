@@ -66,11 +66,20 @@ function reducer(state: AppState, action: AppAction): AppState {
       const { transactionId, category } = action.payload;
       return {
         ...state,
-        transactions: state.transactions.map((t) =>
-          t.id === transactionId
-            ? { ...t, category, isManualCategory: true }
-            : t
-        ),
+        transactions: state.transactions.map((t) => {
+          if (t.id !== transactionId) return t;
+          // Auto-update type based on category:
+          //   Income → income
+          //   Transfers → keep the user's import-time choice
+          //   everything else → expense
+          const type =
+            category === 'Income'
+              ? 'income'
+              : category === 'Transfers'
+              ? t.type
+              : 'expense';
+          return { ...t, category, type, isManualCategory: true };
+        }),
       };
     }
 

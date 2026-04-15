@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Transaction, Category } from '../../types';
-import { CATEGORIES } from '../../constants/categories';
+import { CATEGORIES, categoryBadgeStyle } from '../../constants/categories';
 import { useAppDispatch } from '../../context/AppContext';
 
 interface Props {
@@ -63,10 +63,10 @@ export function TransactionRow({ transaction: tx, style }: Props) {
           </select>
         ) : (
           <span
-            className={`badge badge-${tx.category === 'Transfers' ? 'transfer' : tx.type}`}
+            className="badge"
             onClick={() => setEditing(true)}
             title="Click to change category"
-            style={{ cursor: 'pointer' }}
+            style={{ cursor: 'pointer', ...categoryBadgeStyle(tx.category) }}
           >
             {tx.category}
             {tx.isManualCategory && ' ✎'}

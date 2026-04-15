@@ -1,3 +1,4 @@
+import type React from 'react';
 import type { Category, TransactionType } from '../types';
 
 /** A rule that maps description keywords to a category and transaction type. */
@@ -109,17 +110,33 @@ export const CATEGORIES: Category[] = [
   'Other',
 ];
 
-/** Category color palette for charts. */
+/**
+ * Single source of truth for category colors.
+ * Used in: table badges, pie chart slices, bar chart segments, trend lines, legends.
+ */
 export const CATEGORY_COLORS: Record<Category, string> = {
-  Groceries: '#4CAF50',
-  Dining: '#FF9800',
-  Transport: '#2196F3',
-  Subscriptions: '#9C27B0',
-  Utilities: '#607D8B',
-  Shopping: '#F44336',
-  Health: '#00BCD4',
-  Travel: '#FF5722',
-  Income: '#8BC34A',
-  Transfers: '#9E9E9E',
-  Other: '#795548',
+  Groceries:     '#22c55e',
+  Dining:        '#f97316',
+  Transport:     '#3b82f6',
+  Subscriptions: '#8b5cf6',
+  Utilities:     '#64748b',
+  Shopping:      '#ec4899',
+  Health:        '#06b6d4',
+  Travel:        '#f59e0b',
+  Income:        '#10b981',
+  Transfers:     '#94a3b8',
+  Other:         '#a16207',
 };
+
+/**
+ * Returns inline style for a category badge.
+ * All badge rendering should call this instead of hardcoding colors.
+ */
+export function categoryBadgeStyle(category: Category): React.CSSProperties {
+  const color = CATEGORY_COLORS[category];
+  return {
+    background: `${color}1f`, // ~12% opacity tint
+    color,
+    border: `1px solid ${color}40`, // ~25% opacity border
+  };
+}
