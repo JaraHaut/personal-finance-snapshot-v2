@@ -5,13 +5,12 @@ import { useAppDispatch } from '../../context/AppContext';
 
 interface Props {
   transaction: Transaction;
-  style?: React.CSSProperties;
 }
 
 /**
- * Single virtualized row. Clicking category badge opens an inline select.
+ * Single table row. Clicking the category badge opens an inline select.
  */
-export function TransactionRow({ transaction: tx, style }: Props) {
+export function TransactionRow({ transaction: tx }: Props) {
   const dispatch = useAppDispatch();
   const [editing, setEditing] = useState(false);
 
@@ -26,7 +25,6 @@ export function TransactionRow({ transaction: tx, style }: Props) {
   return (
     <div
       style={{
-        ...style,
         display: 'grid',
         gridTemplateColumns: '100px 1fr 140px 90px',
         gap: 12,
