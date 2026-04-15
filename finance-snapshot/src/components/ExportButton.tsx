@@ -1,25 +1,29 @@
-import { useAppDispatch, useAppState } from '../context/AppContext';
+import { useAppDispatch, useAppState, showToast } from '../context/AppContext';
 import { exportToPdf } from '../lib/pdf-export';
-import { showToast } from '../context/AppContext';
 
 interface Props {
-  snapshotRef: React.RefObject<HTMLDivElement | null>;
+  pdfRef: React.RefObject<HTMLDivElement | null>;
+  month: string | null;
 }
 
 /**
  * PDF export button. Locks UI during export via isExporting flag.
+ * Captures the PdfSnapshot component (off-screen) — not the visible dashboard.
  */
-export function ExportButton({ snapshotRef }: Props) {
+export function ExportButton({ pdfRef, month }: Props) {
   const { isExporting, importPhase, transactions } = useAppState();
   const dispatch = useAppDispatch();
 
   const disabled = isExporting || importPhase !== 'idle' || transactions.length === 0;
 
   async function handleExport() {
-    if (!snapshotRef.current) return;
+    if (!pdfRef.current) return;
     dispatch({ type: 'SET_EXPORTING', payload: true });
     try {
-      await exportToPdf(snapshotRef.current, `finance-snapshot-${new Date().toISOString().slice(0, 10)}.pdf`);
+      const slug    = month ?? 'all-time';
+      const date    = new Date().toISOString().slice(0, 10);
+      const filename = `finance-snapshot-${slug}-${date}.pdf`;
+      await exportToPdf(pdfRef.current, filename);
       showToast('PDF exported!', 'success');
     } catch {
       showToast('PDF export failed.', 'error');
@@ -34,8 +38,10 @@ export function ExportButton({ snapshotRef }: Props) {
       onClick={handleExport}
       disabled={disabled}
       title={transactions.length === 0 ? 'Import data first' : 'Export PDF snapshot'}
+      style={{ display: 'flex', alignItems: 'center', gap: 6 }}
     >
-      {isExporting ? 'Exporting…' : '⬇ Export PDF'}
+      <span style={{ fontSize: 15 }}>⬇</span>
+      {isExporting ? 'Exporting…' : 'Export PDF'}
     </button>
   );
 }

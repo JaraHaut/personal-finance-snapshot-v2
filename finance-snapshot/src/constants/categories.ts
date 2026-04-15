@@ -130,13 +130,15 @@ export const CATEGORY_COLORS: Record<Category, string> = {
 
 /**
  * Returns inline style for a category badge.
- * All badge rendering should call this instead of hardcoding colors.
+ * Single source of truth — used in table rows, import modals, and any other
+ * place that renders a category chip.
  */
 export function categoryBadgeStyle(category: Category): React.CSSProperties {
   const color = CATEGORY_COLORS[category];
   return {
-    background: `${color}1f`, // ~12% opacity tint
+    background: `${color}28`,          // ~16% opacity tint
     color,
-    border: `1px solid ${color}40`, // ~25% opacity border
+    border: `1.5px solid ${color}66`,  // ~40% opacity border
+    fontWeight: 600,
   };
 }

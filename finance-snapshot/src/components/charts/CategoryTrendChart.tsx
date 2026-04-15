@@ -1,27 +1,26 @@
 import { useMemo } from 'react';
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
+  LineChart, Line, XAxis, YAxis, CartesianGrid,
+  Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
 import { useAppState } from '../../context/AppContext';
 import { CATEGORY_COLORS } from '../../constants/categories';
+import type { Category } from '../../types';
 
-const TOP_N = 5; // Show only top N categories to keep chart readable
+const TOP_N = 5;
+const TICK = { fontSize: 13, fill: '#64748b' };
+const GRID = { strokeDasharray: '4 4', stroke: '#e2e8f0' };
+const TOOLTIP_STYLE = {
+  fontSize: 13,
+  borderRadius: 8,
+  border: '1px solid #dde3ee',
+  boxShadow: '0 4px 16px rgba(15,23,42,.10)',
+};
 
-/**
- * Line chart: monthly expense per category (top N by total spend).
- */
 export function CategoryTrendChart() {
   const { transactions } = useAppState();
 
   const { chartData, topCategories } = useMemo(() => {
-    // Aggregate by month + category (expenses only)
     const byMonthCat = new Map<string, Map<string, number>>();
     const catTotals = new Map<string, number>();
 
@@ -34,13 +33,11 @@ export function CategoryTrendChart() {
       catTotals.set(tx.category, (catTotals.get(tx.category) ?? 0) + tx.amount);
     }
 
-    // Pick top N categories
     const topCategories = Array.from(catTotals.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, TOP_N)
       .map(([cat]) => cat);
 
-    // Build chart data rows
     const months = Array.from(byMonthCat.keys()).sort();
     const chartData = months.map((month) => {
       const catMap = byMonthCat.get(month)!;
@@ -56,29 +53,32 @@ export function CategoryTrendChart() {
 
   if (chartData.length === 0) {
     return (
-      <div style={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)', fontSize: 13 }}>
+      <div style={{ height: 240, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)', fontSize: 14 }}>
         No trend data yet
       </div>
     );
   }
 
   return (
-    <ResponsiveContainer width="100%" height={220}>
-      <LineChart data={chartData} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-        <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-        <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `$${v}`} />
-        <Tooltip formatter={(value) => `$${Number(value).toFixed(2)}`} />
-        <Legend wrapperStyle={{ fontSize: 11 }} />
+    <ResponsiveContainer width="100%" height={240}>
+      <LineChart data={chartData} margin={{ top: 8, right: 8, left: 4, bottom: 4 }}>
+        <CartesianGrid {...GRID} />
+        <XAxis dataKey="month" tick={TICK} tickLine={false} axisLine={false} dy={6} />
+        <YAxis tick={TICK} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} width={60} />
+        <Tooltip
+          contentStyle={TOOLTIP_STYLE}
+          formatter={(value) => [`$${Number(value).toFixed(2)}`, undefined]}
+        />
+        <Legend wrapperStyle={{ fontSize: 13, paddingTop: 12 }} iconSize={10} iconType="circle" />
         {topCategories.map((cat) => (
           <Line
             key={cat}
             type="monotone"
             dataKey={cat}
-            stroke={CATEGORY_COLORS[cat as keyof typeof CATEGORY_COLORS] ?? '#94a3b8'}
-            strokeWidth={2}
+            stroke={CATEGORY_COLORS[cat as Category] ?? '#94a3b8'}
+            strokeWidth={2.5}
             dot={false}
-            activeDot={{ r: 4 }}
+            activeDot={{ r: 5, strokeWidth: 0 }}
           />
         ))}
       </LineChart>
