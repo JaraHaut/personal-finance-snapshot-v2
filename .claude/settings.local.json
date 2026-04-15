@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/jarahaut/.claude/plugins/cache/**)",
+      "WebSearch",
+      "Bash(./node_modules/.bin/tsc:*)",
+      "Bash(/Users/jarahaut/Zignaly_Projects/zigce-plugin-1.3.0-rc.13/exercises/tutorial-jara_v2/finance-snapshot/node_modules/.bin/tsc --project /Users/jarahaut/Zignaly_Projects/zigce-plugin-1.3.0-rc.13/exercises/tutorial-jara_v2/finance-snapshot/tsconfig.app.json --noEmit)",
+      "Bash(/Users/jarahaut/Zignaly_Projects/zigce-plugin-1.3.0-rc.13/exercises/tutorial-jara_v2/finance-snapshot/node_modules/.bin/vite --port 5173)",
+      "Bash(git -C /Users/jarahaut/Zignaly_Projects/zigce-plugin-1.3.0-rc.13/exercises/tutorial-jara_v2 add finance-snapshot/src/components/transactions/TransactionRow.tsx finance-snapshot/src/constants/categories.ts finance-snapshot/src/context/AppContext.tsx)",
+      "Bash(git -C /Users/jarahaut/Zignaly_Projects/zigce-plugin-1.3.0-rc.13/exercises/tutorial-jara_v2 commit -m ':*)",
+      "Bash(git -C /Users/jarahaut/Zignaly_Projects/zigce-plugin-1.3.0-rc.13/exercises/tutorial-jara_v2 add finance-snapshot/src/components/transactions/)",
+      "Bash(git -C /Users/jarahaut/Zignaly_Projects/zigce-plugin-1.3.0-rc.13/exercises/tutorial-jara_v2 commit -m 'fix\\(transactions\\): replace virtualizer with plain scroll container:*)",
+      "Bash(/Users/jarahaut/Zignaly_Projects/zigce-plugin-1.3.0-rc.13/exercises/tutorial-jara_v2/finance-snapshot/node_modules/.bin/tsc --project /Users/jarahaut/Zignaly_Projects/zigce-plugin-1.3.0-rc.13/exercises/tutorial-jara_v2/finance-snapshot/tsconfig.json --noEmit)"
+    ]
+  }
+}
