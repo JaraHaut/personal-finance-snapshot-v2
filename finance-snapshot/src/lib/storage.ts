@@ -97,7 +97,9 @@ export function loadAppData(): AppStorage {
       return defaultAppStorage();
     }
 
-    const validated = result.data;
+    // Zod strips branded types (string vs ImportId/TransactionId/ISODate) since z.string() infers plain string.
+    // The data passed full schema validation, so this cast is safe.
+    const validated = result.data as unknown as AppStorage;
 
     // Orphan detection: remove transactions whose importId has no matching import
     const importIds = new Set(validated.imports.map((i) => i.id));
